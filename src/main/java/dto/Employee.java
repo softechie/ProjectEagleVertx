@@ -1,11 +1,12 @@
 package dto;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Employee {
 
     private static final AtomicInteger COUNTER = new AtomicInteger();
-    private int empId;
+    private String empId;
     private String name;
     private String status;
     private String tenure;
@@ -20,15 +21,17 @@ public class Employee {
     private String vertid;
     private String acctid;
     public Employee(){
-        this.empId =  COUNTER.getAndIncrement();
+        String uid = UUID.randomUUID().toString();
+        this.empId =  uid;
 
     }
 
 
-    public Employee(String name, String status, String tenure, String phone, String email, String doj,
+    public Employee(String empId,String name, String status, String tenure, String phone, String email, String doj,
                     String wl, String hl, String cl, String rmid, String roleid, String vertid, String acctid) {
         super();
-        this.empId =  COUNTER.getAndIncrement();
+
+        this.empId = empId;
         this.name = name;
         this.status = status;
         this.tenure = tenure;
@@ -45,14 +48,11 @@ public class Employee {
     }
 
 
-    public int getEmpId() {
+    public String getEmpId() {
         return empId;
     }
 
 
-    public void setEmpId(int empId) {
-        this.empId = empId;
-    }
 
 
     public String getName() {

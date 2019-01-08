@@ -1,5 +1,6 @@
 package controller;
 
+import DAO.EmployeeService;
 import dto.Employee;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -18,7 +19,7 @@ import java.util.Map;
 
 public class EmployeeController extends AbstractVerticle {
 
-    private static  Map<Integer, Employee> employees = new LinkedHashMap<>();
+    private static EmployeeService empService = EmployeeService.getService();
 
     @Override
     public void start(Future<Void> fut) {
@@ -54,7 +55,7 @@ public class EmployeeController extends AbstractVerticle {
     private  void getAll(RoutingContext routingContext) {
         routingContext.response()
                 .putHeader("content-type", "application/json; charset=utf-8")
-                .end(Json.encodePrettily(employees.values()));
+                .end(Json.encodePrettily(empService.getAllEmployees().values()));
     }
 
     private  void addOne(RoutingContext routingContext) {
@@ -65,7 +66,7 @@ public class EmployeeController extends AbstractVerticle {
         emp.setEmail(json.getString("email"));
         emp.setPhone(json.getString("phone"));
         emp.setTenure(json.getString("tenure"));
-        employees.put(emp.getEmpId(),emp);
+        empService.addEmployee(emp);
         routingContext.response()
                 .putHeader("content-type", "application/json; charset=utf-8")
                 .end(Json.encodePrettily(emp));
@@ -77,8 +78,7 @@ public class EmployeeController extends AbstractVerticle {
             routingContext.response().setStatusCode(400).end();
 
         }else{
-            Integer idAsInteger = Integer.valueOf(id);
-            Employee emp =  employees.get(idAsInteger);
+            Employee emp =  empService.getOneEmployee(id);
             routingContext.response()
                     .putHeader("content-type", "application/json; charset=utf-8")
                     .end(Json.encodePrettily(emp));
@@ -92,8 +92,7 @@ public class EmployeeController extends AbstractVerticle {
             routingContext.response().setStatusCode(400).end();
 
         }else{
-            Integer idAsInteger = Integer.valueOf(id);
-          employees.remove(idAsInteger);
+           empService.removeEmployee(id);
             routingContext.response().setStatusCode(200).end();
 
         }
@@ -105,8 +104,8 @@ public class EmployeeController extends AbstractVerticle {
             routingContext.response().setStatusCode(400).end();
 
         }else{
-            Integer idAsInteger = Integer.valueOf(id);
-         Employee emp =   employees.get(idAsInteger);
+
+         Employee emp =   empService.getOneEmployee(id);
          if (emp == null){
              routingContext.response().setStatusCode(400).end();
 
@@ -116,6 +115,7 @@ public class EmployeeController extends AbstractVerticle {
             emp.setEmail(json.getString("email"));
             emp.setPhone(json.getString("phone"));
             emp.setTenure(json.getString("tenure"));
+            empService.updateEmployee(emp);
             routingContext.response()
                     .putHeader("content-type", "application/json; charset=utf-8")
                     .end(Json.encodePrettily(emp));
