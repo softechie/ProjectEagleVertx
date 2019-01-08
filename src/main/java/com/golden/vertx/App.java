@@ -1,5 +1,7 @@
 package com.golden.vertx;
 
+import controller.EmployeeController;
+import io.vertx.core.Launcher;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
@@ -14,23 +16,8 @@ public class App
     public static void main( String[] args )
     {
 
-        Vertx vertex= Vertx.vertx();
+        Launcher.executeCommand("run", EmployeeController.class.getName());
 
-        HttpServer hs = vertex.createHttpServer();
-
-        Router router = Router.router(vertex);
-
-        router.route("/hi")
-                .handler(routingContext -> {
-            HttpServerResponse rsp =routingContext.response();
-
-            rsp.putHeader("content-type","application/json")
-                    .end("hello");
-                    });
-
-
-        hs.requestHandler(router)
-                .listen(8100);
 
 
     }
