@@ -16,8 +16,7 @@ public class App
     public static void main( String[] args )
     {
 
-        Launcher.executeCommand("run", EmployeeController.class.getName());
-
+      Launcher.executeCommand("run", EmployeeController.class.getName());
 
 
     }
