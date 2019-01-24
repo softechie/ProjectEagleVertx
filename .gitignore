@@ -1,2 +1,7 @@
 .idea/
+<<<<<<< HEAD
 .vertx/
+=======
+.vertx/
+target/*
+>>>>>>> first init

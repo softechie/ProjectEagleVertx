@@ -1,4 +1,4 @@
-package DAO;
+package com.pl2_vertx.DAO;
 
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
@@ -8,7 +8,6 @@ import com.couchbase.client.java.cluster.BucketSettings;
 import com.couchbase.client.java.cluster.ClusterManager;
 import com.couchbase.client.java.cluster.DefaultBucketSettings;
 import com.couchbase.client.java.document.JsonDocument;
-import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.env.CouchbaseEnvironment;
 import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
@@ -16,27 +15,21 @@ import com.couchbase.client.java.error.BucketDoesNotExistException;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
-import com.couchbase.client.java.query.Statement;
-import com.couchbase.client.java.view.ViewQuery;
-import com.couchbase.client.java.view.ViewResult;
-import com.couchbase.client.java.view.ViewRow;
-import config.DbConfig;
-import dto.Employee;
+import com.pl2_vertx.config.DbConfig;
+import com.pl2_vertx.dto.Employee;
+import com.pl2_vertx.service.EmployeeService;
 import io.vertx.core.json.Json;
 
-import javax.naming.ConfigurationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.couchbase.client.java.query.dsl.Expression.i;
+public class EmployeeDao {
 
-// singelton
-public class EmployeeService {
-    private static EmployeeService empservice;
-    public  Cluster cl;
+    private static EmployeeDao empDao;
+    public Cluster cl;
     public Bucket bucket;
-    private EmployeeService(){
+    private EmployeeDao(){
         CouchbaseEnvironment env = DefaultCouchbaseEnvironment.builder()
                 //this set the IO socket timeout globally, to 45s
                 .socketConnectTimeout((int) TimeUnit.SECONDS.toMillis(45))
@@ -45,12 +38,12 @@ public class EmployeeService {
                 .build();
         try {
 
-            cl = CouchbaseCluster.create(env,DbConfig.url);
+            cl = CouchbaseCluster.create(env, DbConfig.url);
 
             cl.authenticate(DbConfig.username, DbConfig.password);
             bucket = cl.openBucket(DbConfig.bucket);
         } catch(BucketDoesNotExistException e){
-System.out.println("Bucket doesn't exist .... creating new one");
+            System.out.println("Bucket doesn't exist .... creating new one");
 
             ClusterManager clusterManager = cl.clusterManager();
             BucketSettings bucketSettings = new DefaultBucketSettings.Builder()
@@ -72,26 +65,26 @@ System.out.println("Bucket doesn't exist .... creating new one");
 
     }
 
-    public static EmployeeService getService(){
-        if(empservice == null){
-            empservice = new EmployeeService();
+    public static EmployeeDao getService(){
+        if(empDao == null){
+            empDao = new EmployeeDao();
         }
-        return empservice;
+        return empDao;
     }
 
     public void addEmployee(Employee emp){
         JsonObject jsonEmp = JsonObject.fromJson(Json.encodePrettily(emp));
-               bucket.insert(JsonDocument.create(emp.getEmpId(), jsonEmp));
+        bucket.insert(JsonDocument.create(emp.getEmpId(), jsonEmp));
     }
 
-    public  Map<String, Employee> getAllEmployees() {
+    public Map<String, Employee> getAllEmployees() {
         Map<String, Employee> employees = new LinkedHashMap<>();
 
         N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
         for (N1qlQueryRow row : result) {
-           JsonObject jbs = JsonObject.fromJson(row.toString());
-          Employee emp =  Json.decodeValue(jbs.get("Employees").toString(),Employee.class);
-          employees.put(emp.getEmpId(),emp);
+            JsonObject jbs = JsonObject.fromJson(row.toString());
+            Employee emp =  Json.decodeValue(jbs.get("Employees").toString(),Employee.class);
+            employees.put(emp.getEmpId(),emp);
 
         }
         return employees;
@@ -115,7 +108,5 @@ System.out.println("Bucket doesn't exist .... creating new one");
         bucket.replace(JsonDocument.create(emp.getEmpId(), jsonEmp));
 
     }
-
-
 
 }

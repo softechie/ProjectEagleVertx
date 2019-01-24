@@ -1,4 +1,4 @@
-package dto;
+package com.pl2_vertx.dto;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
