@@ -14,6 +14,5 @@ public class Application
 
       Launcher.executeCommand("run", EntryPoint.class.getName());
 
-
     }
 }

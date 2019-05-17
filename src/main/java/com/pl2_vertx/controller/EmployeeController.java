@@ -6,19 +6,22 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import com.pl2_vertx.service.EmployeeService;
+import java.util.function.Function;
+
+import java.util.function.Predicate;
 
 public class EmployeeController {
 
     private static TestService empService = new TestService();
 
 
-    public static  void getAll(RoutingContext routingContext) {
+    public static void getAll(RoutingContext routingContext) {
         routingContext.response()
                 .putHeader("content-type", "application/json; charset=utf-8")
                 .end(Json.encodePrettily(empService.getEmployees().values()));
     }
 
-    public static  void addOne(RoutingContext routingContext) {
+    public static void addOne(RoutingContext routingContext) {
 
         JsonObject json = routingContext.getBodyAsJson();
         Employee emp = new Employee();
@@ -32,7 +35,7 @@ public class EmployeeController {
                 .end(Json.encodePrettily(emp));
 
     }
-    public static  void getOne(RoutingContext routingContext) {
+    public static void getOne(RoutingContext routingContext) {
         String id = routingContext.request().getParam("id");
         if(id == null){
             routingContext.response().setStatusCode(400).end();
@@ -46,7 +49,7 @@ public class EmployeeController {
         }
 
     }
-    public static  void deleteOne(RoutingContext routingContext) {
+    public static void deleteOne(RoutingContext routingContext) {
         String id = routingContext.request().getParam("id");
         if(id == null){
             routingContext.response().setStatusCode(400).end();
@@ -58,7 +61,7 @@ public class EmployeeController {
         }
 
     }
-    public static  void updateOne(RoutingContext routingContext) {
+    public static void updateOne(RoutingContext routingContext) {
         String id = routingContext.request().getParam("id");
         if(id == null){
             routingContext.response().setStatusCode(400).end();
@@ -82,5 +85,37 @@ public class EmployeeController {
 
         }
 
+    }
+
+    // Get a list of column values from employee table
+    public static void getListOfColValue(RoutingContext routingContext, Function<Employee,String> lambda) {
+        routingContext.response()
+                .putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(empService.getListOfColValue(lambda)));
+    }
+
+    // Get an employee by column value
+    public static void getEmployeeByCol(RoutingContext routingContext, Predicate<Employee> pred) {
+        Employee emp = empService.getEmployeeByCol(pred);
+        if(emp == null) {
+            routingContext.response().setStatusCode(400).end();
+        } else {
+            routingContext.response()
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .end(Json.encodePrettily(emp));
+        }
+    }
+
+    // Get list of sorted employees
+    public static void getSortedEmployees(RoutingContext routingContext) {
+        routingContext.response()
+                .putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(empService.getSortedEmployees().values()));
+    }
+
+    // Delete all
+    public static void deleteAll(RoutingContext routingContext) {
+        empService.deleteAllEmployees();
+        routingContext.response().setStatusCode(200).end();
     }
 }
