@@ -8,6 +8,7 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 
 public class EntryPoint extends AbstractVerticle {
@@ -19,6 +20,8 @@ public class EntryPoint extends AbstractVerticle {
         HttpServer hs = vertx.createHttpServer();
         Router router = Router.router(vertx);
         EmployeeController ec = new EmployeeController();
+        //Allows the usage of body in http requests.
+        router.route().handler(BodyHandler.create());
 
         // Handler for search urls
         Handler<RoutingContext> rcSearch = routingContext -> {
