@@ -20,15 +20,18 @@ import com.pl2_vertx.dto.Employee;
 import com.pl2_vertx.service.EmployeeService;
 import io.vertx.core.json.Json;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class EmployeeDao {
 
     private static EmployeeDao empDao;
     public Cluster cl;
     public Bucket bucket;
+
     private EmployeeDao(){
         CouchbaseEnvironment env = DefaultCouchbaseEnvironment.builder()
                 //this set the IO socket timeout globally, to 45s
@@ -55,12 +58,8 @@ public class EmployeeDao {
             clusterManager.insertBucket(bucketSettings);
             bucket = cl.openBucket(DbConfig.bucket);
             bucket.query(N1qlQuery.simple("create primary index employees_index on "+DbConfig.bucket));
-
-
-
-
         } catch (Exception e ){
-            System.out.println("unable to acces the couchbase server please check the configuration");
+            System.out.println("unable to access the couchbase server please check the configuration");
         }
 
     }
@@ -77,19 +76,6 @@ public class EmployeeDao {
         bucket.insert(JsonDocument.create(emp.getEmpId(), jsonEmp));
     }
 
-    public Map<String, Employee> getAllEmployees() {
-        Map<String, Employee> employees = new LinkedHashMap<>();
-
-        N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
-        for (N1qlQueryRow row : result) {
-            JsonObject jbs = JsonObject.fromJson(row.toString());
-            Employee emp =  Json.decodeValue(jbs.get("Employees").toString(),Employee.class);
-            employees.put(emp.getEmpId(),emp);
-
-        }
-        return employees;
-
-    }
     public Employee getOneEmployee(String id){
         JsonDocument doc = bucket.get(id);
         if (doc == null)
@@ -97,16 +83,70 @@ public class EmployeeDao {
         return Json.decodeValue(doc.content().toString(),Employee.class);
     }
 
-    public void removeEmployee(String id){
+    public Map<String, Employee> getAllEmployees() {
+        N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
 
+        return result.allRows().stream()
+                .map(e->JsonObject.fromJson(e.toString()).get("Employees").toString())
+                .map(e->Json.decodeValue(e,Employee.class))
+                .sorted(Comparator.comparing(Employee::getName))
+                .collect(Collectors.toMap(e->e.getEmpId(), e->e));
+
+    }
+
+    public Map<String, Employee> getSortedEmployees(){
+        N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
+
+        return result.allRows().stream()
+                .map(e->JsonObject.fromJson(e.toString()).get("Employees").toString())
+                .map(e->Json.decodeValue(e, Employee.class))
+                .sorted(Comparator.comparing(Employee::getName))
+                .collect(Collectors.toMap(e->e.getEmpId(), e->e, (e1,e2) -> e1, LinkedHashMap::new));
+    }
+
+    public Employee getEmployeeByCol(Predicate<Employee> pred){
+        N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
+
+        List<Employee> list = result.allRows().stream()
+                .map(e->JsonObject.fromJson(e.toString()).get("Employees").toString())
+                .map(e->Json.decodeValue(e, Employee.class))
+                .filter(pred)
+                .collect(Collectors.toList());
+
+        // Returns null if employee with value doesnt exist
+        if(list.isEmpty())
+            return null;
+
+        // Return value which is the first item from list.
+        return list.get(0);
+    }
+
+    public List<String> getListOfColValues(Function<Employee, String> lambda){
+        N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
+
+        return result.allRows().stream()
+                .map(e->JsonObject.fromJson(e.toString()).get("Employees").toString())
+                .map(e->Json.decodeValue(e, Employee.class))
+                .map(lambda)
+                .collect(Collectors.toList());
+    }
+
+    public void removeEmployee(String id){
         bucket.remove(id);
+    }
+
+    public void removeAllEmployees(){
+        N1qlQueryResult result = bucket.query(N1qlQuery.simple("select empId from Employees"));
+
+        result.allRows().stream()
+                .map(e->JsonObject.fromJson(e.toString()).get("empId"))
+                .forEach(e->bucket.remove(e.toString()));
     }
 
     public void updateEmployee(Employee emp){
         JsonObject jsonEmp = JsonObject.fromJson(Json.encodePrettily(emp));
 
         bucket.replace(JsonDocument.create(emp.getEmpId(), jsonEmp));
-
     }
 
 }

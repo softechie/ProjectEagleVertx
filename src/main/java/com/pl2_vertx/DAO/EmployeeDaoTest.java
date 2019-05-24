@@ -2,6 +2,7 @@ package com.pl2_vertx.DAO;
 
 import com.pl2_vertx.dto.Employee;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class EmployeeDaoTest {
     }
     public void deleteAllEmployees(){ emp.clear(); }
 
-    public List<String> getListOfColValue(Function<Employee,String> lambda){
+    public List<String> getListOfColValues(Function<Employee,String> lambda){
         return emp.values()
                 .stream()
                 .map(lambda)
@@ -96,10 +97,10 @@ public class EmployeeDaoTest {
        return list.get(0);
     }
 
-    public Map<String,Employee> sortedEmployees(){
+    public Map<String,Employee> getSortedEmployees(){
         return emp.values()
                 .stream()
-                .sorted((x1, x2) -> x1.getName().compareTo(x2.getName()))
+                .sorted(Comparator.comparing(Employee::getName))
                 .collect(Collectors.toMap(e->e.getEmpId(), e->e, (e1,e2)-> e1, LinkedHashMap::new));
     }
 

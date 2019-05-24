@@ -58,16 +58,16 @@ public class EntryPoint extends AbstractVerticle {
 
             switch (paramName) {
                 case "names":
-                    ec.getListOfColValue(routingContext, x->x.getName());
+                    ec.getListOfColValues(routingContext, x->x.getName());
                     break;
                 case "emails":
-                    ec.getListOfColValue(routingContext, x->x.getEmail());
+                    ec.getListOfColValues(routingContext, x->x.getEmail());
                     break;
                 case "phones":
-                    ec.getListOfColValue(routingContext, x->x.getPhone());
+                    ec.getListOfColValues(routingContext, x->x.getPhone());
                     break;
                 case "wls":
-                    ec.getListOfColValue(routingContext, x->x.getWl());
+                    ec.getListOfColValues(routingContext, x->x.getWl());
                     break;
                 default:
                     routingContext.response().setStatusCode(400).end();
@@ -95,8 +95,8 @@ public class EntryPoint extends AbstractVerticle {
 
         router.post("/api/employees").handler(EmployeeController::addOne);
 
-        router.delete("/api/employees/:id").handler(EmployeeController::deleteOne);
-        router.delete("/api/employees/delete/all").handler(EmployeeController::deleteAll);
+        router.delete("/api/employees/:id").handler(EmployeeController::removeOne);
+        router.delete("/api/employees/delete/all").handler(EmployeeController::removeAll);
 
         router.patch("/api/employees/:id").handler(EmployeeController::updateOne);
 

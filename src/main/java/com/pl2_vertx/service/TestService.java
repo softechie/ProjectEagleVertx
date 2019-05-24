@@ -12,20 +12,19 @@ public class TestService {
 
     private EmployeeDaoTest employeeDaoTest = new EmployeeDaoTest();
 
-    public Map<String,Employee> getEmployees() {
-        return employeeDaoTest.getEmployees();
-    }
-
+    public void addEmployee(Employee e){employeeDaoTest.addEmployee(e);}
     public Employee getEmployee(String id) {
         return employeeDaoTest.getEmployee(id);
     }
-    public void addEmployee(Employee e){employeeDaoTest.addEmployee(e);}
+    public Map<String,Employee> getEmployees() {
+        return employeeDaoTest.getEmployees();
+    }
+    public Employee getEmployeeByCol(Predicate<Employee> pred){return employeeDaoTest.getEmployeeByCol(pred);}
+    public Map<String,Employee> getSortedEmployees() { return employeeDaoTest.getSortedEmployees();}
+    public List<String> getListOfColValues(Function<Employee, String> lambda) { return employeeDaoTest.getListOfColValues(lambda);}
     public void updateEmployee(Employee e){employeeDaoTest.updateEmployee(e);}
     public void deleteEmployee(String id){employeeDaoTest.deleteEmployee(id);}
-    public Employee getEmployeeByCol(Predicate<Employee> pred){return employeeDaoTest.getEmployeeByCol(pred);}
-    public Map<String,Employee> getSortedEmployees() { return employeeDaoTest.sortedEmployees();}
     public void deleteAllEmployees() { employeeDaoTest.deleteAllEmployees(); }
-    public List<String> getListOfColValue(Function<Employee, String> lambda) { return employeeDaoTest.getListOfColValue(lambda);}
 }
 
 
