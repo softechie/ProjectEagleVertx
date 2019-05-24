@@ -89,7 +89,6 @@ public class EmployeeDao {
         return result.allRows().stream()
                 .map(e->JsonObject.fromJson(e.toString()).get("Employees").toString())
                 .map(e->Json.decodeValue(e,Employee.class))
-                .sorted(Comparator.comparing(Employee::getName))
                 .collect(Collectors.toMap(e->e.getEmpId(), e->e));
 
     }
