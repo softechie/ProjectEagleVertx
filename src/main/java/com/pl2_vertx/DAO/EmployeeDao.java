@@ -14,12 +14,9 @@ import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 import com.couchbase.client.java.error.BucketDoesNotExistException;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
-import com.couchbase.client.java.query.N1qlQueryRow;
 import com.pl2_vertx.config.DbConfig;
 import com.pl2_vertx.dto.Employee;
-import com.pl2_vertx.service.EmployeeService;
 import io.vertx.core.json.Json;
-
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -73,13 +70,18 @@ public class EmployeeDao {
 
     public void addEmployee(Employee emp){
         JsonObject jsonEmp = JsonObject.fromJson(Json.encodePrettily(emp));
-        bucket.insert(JsonDocument.create(emp.getEmpId(), jsonEmp));
+        try {
+            bucket.insert(JsonDocument.create(emp.getEmpId(), jsonEmp));
+        } catch(Exception e){
+            System.out.println("Add Employee Failed. CAUSE: " + e.getMessage());
+        }
     }
 
     public Employee getOneEmployee(String id){
         JsonDocument doc = bucket.get(id);
         if (doc == null)
             return null;
+
         return Json.decodeValue(doc.content().toString(),Employee.class);
     }
 
@@ -105,7 +107,6 @@ public class EmployeeDao {
 
     public Employee getEmployeeByCol(Predicate<Employee> pred){
         N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
-
         List<Employee> list = result.allRows().stream()
                 .map(e->JsonObject.fromJson(e.toString()).get("Employees").toString())
                 .map(e->Json.decodeValue(e, Employee.class))
@@ -131,21 +132,31 @@ public class EmployeeDao {
     }
 
     public void removeEmployee(String id){
-        bucket.remove(id);
+        try {
+            bucket.remove(id);
+        } catch(Exception e) {
+            System.out.println("Remove Employee Failed. CAUSE: " + e.getMessage());
+        }
     }
 
     public void removeAllEmployees(){
-        N1qlQueryResult result = bucket.query(N1qlQuery.simple("select empId from Employees"));
-
-        result.allRows().stream()
-                .map(e->JsonObject.fromJson(e.toString()).get("empId"))
-                .forEach(e->bucket.remove(e.toString()));
+        try {
+            N1qlQueryResult result = bucket.query(N1qlQuery.simple("select empId from Employees"));
+            result.allRows().stream()
+                    .map(e -> JsonObject.fromJson(e.toString()).get("empId"))
+                    .forEach(e -> bucket.remove(e.toString()));
+        } catch(Exception e) {
+            System.out.println("Remove All Employees Failed. CAUSE: " + e.getMessage());
+        }
     }
 
     public void updateEmployee(Employee emp){
         JsonObject jsonEmp = JsonObject.fromJson(Json.encodePrettily(emp));
-
-        bucket.replace(JsonDocument.create(emp.getEmpId(), jsonEmp));
+        try {
+            bucket.replace(JsonDocument.create(emp.getEmpId(), jsonEmp));
+        } catch(Exception e){
+            System.out.println("Employee Update Failed. CAUSE: " + e.getMessage());
+        }
     }
 
 }

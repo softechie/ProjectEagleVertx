@@ -105,7 +105,6 @@ public class EntryPoint extends AbstractVerticle {
 
         hs.requestHandler(router)
                 .listen(8080);
-
     }
 
 
