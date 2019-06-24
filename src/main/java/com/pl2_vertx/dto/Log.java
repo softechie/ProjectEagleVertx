@@ -1,19 +1,29 @@
-package com.pl2_vertx.log;
+package com.pl2_vertx.dto;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 public class Log {
 
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+    private DateFormat timeFormat = new SimpleDateFormat("HH:mm");
     private String logId;
     private String msg;
     private String date;
     private String time;
 
-    public Log(String msg, String date, String time){
+    public Log(){
+        this.logId = UUID.randomUUID().toString();
+    }
+
+    public Log(String msg){
         this.logId = UUID.randomUUID().toString();
         this.msg = msg;
-        this.date = date;
-        this.time = time;
+        this.date = dateFormat.format(new Date());
+        this.time = timeFormat.format(Calendar.getInstance().getTime());
     }
 
     public String getLogId() {
