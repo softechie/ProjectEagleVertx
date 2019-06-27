@@ -10,13 +10,20 @@ import java.util.Map;
 
 public class Producer {
     private KafkaProducer<String, JsonObject> producer;
-    private String kafkaServer = "localhost:9092";
-    //private String kafkaServer = "kafka-2ac2e185-antinywong-f578.aivencloud.com:14246";
+    //private String kafkaServer = "localhost:9092";
+    private String kafkaServer = "kafka-2ac2e185-antinywong-f578.aivencloud.com:14246";
 
     public Producer() {
         Vertx vertx = Vertx.vertx();
         Map<String, String> config = new HashMap<>();
         config.put("bootstrap.servers", kafkaServer);
+        config.put("security.protocol", "SSL");
+        config.put("ssl.truststore.location", "C:\\Users\\trana\\Desktop\\keys\\client.truststore.jks");
+        config.put("ssl.truststore.password", "password");
+        config.put("ssl.keystore.type", "PKCS12");
+        config.put("ssl.keystore.location", "C:\\Users\\trana\\Desktop\\keys\\client.keystore.p12");
+        config.put("ssl.keystore.password", "password");
+        config.put("ssl.key.password", "password");
         config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         config.put("value.serializer", "io.vertx.kafka.client.serialization.JsonObjectSerializer");
         config.put("acks", "1");
@@ -32,7 +39,7 @@ public class Producer {
 
         producer.write(record, done -> {
             if(done.succeeded())
-                System.out.println("Log Sent");
+                System.out.println("Log Sent: " + log.getLogId());
             else
                 System.out.println("Fail " + done.cause());
         });
