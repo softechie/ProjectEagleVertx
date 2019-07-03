@@ -20,6 +20,22 @@ public class Producer {
     private String kafkaServer = "kafka-2ac2e185-antinywong-f578.aivencloud.com:14246";
 
     public Producer() {
+
+        // Use this and uncomment out next section if you are using LOCAL KAFKA SERVER WITHOUT SSL
+        /*
+
+        Map<String, String> config = new HashMap<>();
+        config.put("bootstrap.servers", kafkaServer);
+        config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        config.put("value.serializer", "io.vertx.kafka.client.serialization.JsonObjectSerializer");
+        config.put("acks", "1");
+
+        //Use producer for interacting with Apache Kafka
+        producer = KafkaProducer.create(Vertx.vertx(), config);
+
+        */
+
+        //Use this and uncomment above section if using AIVEN KAFKA SERVER
         try (InputStream input = new FileInputStream(new File("config.properties").getAbsolutePath())) {
             //Load props file content.
             Properties prop = new Properties();
@@ -40,7 +56,7 @@ public class Producer {
             config.put("ssl.keystore.type", "PKCS12");
             config.put("ssl.keystore.location", keyStorePath);
             config.put("ssl.keystore.password", keyStorePassword);
-            config.put("ssl.key.password", "password");
+            config.put("ssl.key.password", keyStorePassword);
             config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
             config.put("value.serializer", "io.vertx.kafka.client.serialization.JsonObjectSerializer");
             config.put("acks", "1");
