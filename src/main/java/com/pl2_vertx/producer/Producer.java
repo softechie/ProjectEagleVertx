@@ -21,7 +21,7 @@ public class Producer {
 
     public Producer() {
 
-        // Use this and uncomment out next section if you are using LOCAL KAFKA SERVER WITHOUT SSL
+        // Uncomment out this section and comment out next section if you are using LOCAL KAFKA SERVER WITHOUT SSL.
         /*
 
         Map<String, String> config = new HashMap<>();
@@ -35,7 +35,7 @@ public class Producer {
 
         */
 
-        //Use this and uncomment above section if using AIVEN KAFKA SERVER
+        //Uncomment this section out and comment out above section if using AIVEN KAFKA SERVER.
         try (InputStream input = new FileInputStream(new File("config.properties").getAbsolutePath())) {
             //Load props file content.
             Properties prop = new Properties();

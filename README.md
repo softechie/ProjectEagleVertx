@@ -42,7 +42,7 @@
 
 
 
-You can run the Kafka server locally by downloading Kafka 2.3.0
+You can run the Kafka server locally by downloading Kafka 2.3.0.
 https://kafka.apache.org/downloads
 
 Local Kafka Server
@@ -52,13 +52,13 @@ Local Kafka Server
 
 #OR
 
-You can create a remote Kafka server through aiven. (Free Trial 30 days)
+You can create a remote Kafka server through aiven. (Free Trial 30 days).
 https://console.aiven.io/index.html
 
 Aiven
 
-* Go to the Java keystore management section and follow that in the below link. This is intructions to generate keystores and truststores.
-https://help.aiven.io/articles/489572-getting-started-with-aiven-kafka
+- Go to the Java keystore management section and follow that in the below link. This is intructions to generate keystores and truststores.
+- https://help.aiven.io/articles/489572-getting-started-with-aiven-kafka
 
 
 
