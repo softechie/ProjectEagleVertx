@@ -1,7 +1,6 @@
 # ProjectEagleVertx
 
-    ## REQUIRED CONFIGURATIONS
-------------------------------------------------
+## ~ REQUIRED CONFIGURATIONS ~
 
 ## CouchBase Community Server
 
