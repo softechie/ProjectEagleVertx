@@ -5,8 +5,14 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import io.vertx.kafka.client.producer.KafkaProducerRecord;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class Producer {
     private KafkaProducer<String, JsonObject> producer;
@@ -14,22 +20,36 @@ public class Producer {
     private String kafkaServer = "kafka-2ac2e185-antinywong-f578.aivencloud.com:14246";
 
     public Producer() {
-        Vertx vertx = Vertx.vertx();
-        Map<String, String> config = new HashMap<>();
-        config.put("bootstrap.servers", kafkaServer);
-        config.put("security.protocol", "SSL");
-        config.put("ssl.truststore.location", "C:\\Users\\trana\\Desktop\\keys\\client.truststore.jks");
-        config.put("ssl.truststore.password", "password");
-        config.put("ssl.keystore.type", "PKCS12");
-        config.put("ssl.keystore.location", "C:\\Users\\trana\\Desktop\\keys\\client.keystore.p12");
-        config.put("ssl.keystore.password", "password");
-        config.put("ssl.key.password", "password");
-        config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        config.put("value.serializer", "io.vertx.kafka.client.serialization.JsonObjectSerializer");
-        config.put("acks", "1");
+        try (InputStream input = new FileInputStream(new File("config.properties").getAbsolutePath())) {
+            //Load props file content.
+            Properties prop = new Properties();
+            prop.load(input);
 
-        // use producer for interacting with Apache Kafka
-        producer = KafkaProducer.create(vertx, config);
+            //Extract props file content
+            String trustStorePath = new File(prop.getProperty("kafka.truststore.path")).getAbsolutePath();
+            String keyStorePath = new File(prop.getProperty("kafka.keystore.path")).getAbsolutePath();
+            String trustStorePassword = prop.getProperty("kafka.truststore.password");
+            String keyStorePassword = prop.getProperty("kafka.keystore.password");
+
+            //Set up configs for Kafka.
+            Map<String, String> config = new HashMap<>();
+            config.put("bootstrap.servers", kafkaServer);
+            config.put("security.protocol", "SSL");
+            config.put("ssl.truststore.location", trustStorePath);
+            config.put("ssl.truststore.password", trustStorePassword);
+            config.put("ssl.keystore.type", "PKCS12");
+            config.put("ssl.keystore.location", keyStorePath);
+            config.put("ssl.keystore.password", keyStorePassword);
+            config.put("ssl.key.password", "password");
+            config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+            config.put("value.serializer", "io.vertx.kafka.client.serialization.JsonObjectSerializer");
+            config.put("acks", "1");
+
+            //Use producer for interacting with Apache Kafka
+            producer = KafkaProducer.create(Vertx.vertx(), config);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void sendLog(Log log){
