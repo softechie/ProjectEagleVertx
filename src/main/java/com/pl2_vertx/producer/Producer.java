@@ -31,7 +31,7 @@ public class Producer {
         config.put("acks", "1");
 
         //Use producer for interacting with Apache Kafka
-        producer = KafkaProducer.create(Vertx.vertx(), config);
+        producer = KafkaProducer.create(Vertx.currentContext().owner(), config);
 
         */
 
@@ -62,7 +62,7 @@ public class Producer {
             config.put("acks", "1");
 
             //Use producer for interacting with Apache Kafka
-            producer = KafkaProducer.create(Vertx.vertx(), config);
+            producer = KafkaProducer.create(Vertx.currentContext().owner() , config);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
