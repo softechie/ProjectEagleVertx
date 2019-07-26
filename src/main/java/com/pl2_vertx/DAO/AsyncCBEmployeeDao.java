@@ -12,24 +12,30 @@ import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 import com.couchbase.client.java.error.BucketDoesNotExistException;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.Statement;
 import com.pl2_vertx.config.DbConfig;
 import com.pl2_vertx.dto.Employee;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.Json;
+import io.vertx.ext.web.RoutingContext;
+import rx.Subscriber;
+import rx.functions.Action1;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class EmployeeDao {
+import static com.couchbase.client.java.query.Select.select;
 
-    private static EmployeeDao empDao;
-    public Cluster cl;
-    public Bucket bucket;
+public class AsyncCBEmployeeDao {
 
+    private static AsyncCBEmployeeDao empDao;
+    public AsyncCluster cl;
+    public AsyncBucket bucket;
 
-
-    private EmployeeDao(){
+    private AsyncCBEmployeeDao(){
         CouchbaseEnvironment env = DefaultCouchbaseEnvironment.builder()
                 //this set the IO socket timeout globally, to 45s
                 .socketConnectTimeout((int) TimeUnit.SECONDS.toMillis(45))
@@ -38,14 +44,14 @@ public class EmployeeDao {
                 .build();
         try {
 
-            cl = CouchbaseCluster.create(env, DbConfig.url);
+            cl = CouchbaseAsyncCluster.create(env, DbConfig.url);
             cl.authenticate(DbConfig.username, DbConfig.password);
-            bucket = cl.openBucket(DbConfig.bucket);
+            cl.openBucket(DbConfig.bucket).subscribe(b -> bucket = b);
 
         } catch(BucketDoesNotExistException e){
             System.out.println("Bucket doesn't exist .... creating new one");
 
-            ClusterManager clusterManager = cl.clusterManager();
+            ClusterManager clusterManager = (ClusterManager) cl.clusterManager();
             BucketSettings bucketSettings = new DefaultBucketSettings.Builder()
                     .type(BucketType.COUCHBASE)
                     .name(DbConfig.bucket)
@@ -53,7 +59,7 @@ public class EmployeeDao {
                     .build();
 
             clusterManager.insertBucket(bucketSettings);
-            bucket = cl.openBucket(DbConfig.bucket);
+            cl.openBucket(DbConfig.bucket).subscribe(b -> bucket = b);
             bucket.query(N1qlQuery.simple("create primary index employees_index on "+DbConfig.bucket));
         } catch (Exception e ){
             System.out.println("unable to access the couchbase server please check the configuration");
@@ -61,9 +67,9 @@ public class EmployeeDao {
 
     }
 
-    public static EmployeeDao getService(){
+    public static AsyncCBEmployeeDao getService(){
         if(empDao == null){
-            empDao = new EmployeeDao();
+            empDao = new AsyncCBEmployeeDao();
         }
         return empDao;
     }
@@ -77,17 +83,53 @@ public class EmployeeDao {
         }
     }
 
-    public Employee getOneEmployee(String id){
-        JsonDocument doc = bucket.get(id);
-
-        if (doc == null)
-            return null;
-
-        return Json.decodeValue(doc.content().toString(),Employee.class);
+    public void getOneEmployee(String id, RoutingContext routingContext){
+        bucket.get(id).subscribe(res -> routingContext.response()
+                .putHeader("content-type", "application/json; charset=utf-8")
+                .end(res.content().toString()));
     }
 
-    public Map<String, Employee> getAllEmployees() {
-       N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
+    public void getAllEmployees(RoutingContext routingContext) {
+        Statement r = select("*").from("Employees");
+        N1qlQuery n1qlQuery = N1qlQuery.simple(r);
+        //Map<String, Employee> emps = new HashMap<>();
+
+        bucket.query(n1qlQuery).flatMap(res -> res.rows())
+                .map(row -> row.value())
+                .map(e->e.toString())
+                /*.map(e->JsonObject.fromJson(e.toString()).get("Employees").toString())*/
+                .forEach(e -> System.out.println(e));
+                /*.map(e->Json.decodeValue(e,Employee.class))*/
+
+       /*         .subscribe(new Subscriber<Employee>() {
+                    Map<String, Employee> list = new HashMap<>();
+
+                    @Override
+                    public void onCompleted() {
+                        routingContext.response()
+                                .putHeader("content-type", "application/json; charset=utf-8")
+                                .end(Json.encodePrettily(list));
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        System.out.println(throwable.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(Employee employee) {
+                        list.put(employee.getEmpId(), employee);
+                    }
+                });*/
+/*
+
+          routingContext.response()
+                .putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(""));
+*/
+
+
+
 /*
         //Extract rows from Couchbase WITHOUT streams and lambdas.
         Map<String, Employee> employeeMap = new HashMap<String, Employee>();
@@ -101,20 +143,21 @@ public class EmployeeDao {
 
  */
 
-        long begin = System.nanoTime();
+      /*  long begin = System.nanoTime();
         //Extract all rows from Couchbase WITH streams and lambda
-        Map<String, Employee> emps = result.allRows().stream()
+        Map<String, Employee> emp = result.allRows().stream()
                 .map(e->JsonObject.fromJson(e.toString()).get("Employees").toString())
                 .map(e->Json.decodeValue(e,Employee.class))
                 .collect(Collectors.toMap(e->e.getEmpId(), e->e));
         long end = System.nanoTime();
-        //System.out.println("Stm: " + (end-begin) / 1000000);
-        return emps;
+        //System.out.println("Stm: " + (end-begin) / 1000000);*/
     }
 
 
     public Map<String, Employee> getSortedEmployees(){
-        N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
+        N1qlQueryResult result = (N1qlQueryResult) bucket.query(N1qlQuery.simple("select * from Employees"));
+        Statement r = select("*").from("Employees");
+        N1qlQuery n1qlQuery = N1qlQuery.simple(r);
 
         return result.allRows().stream()
                 .map(e->JsonObject.fromJson(e.toString()).get("Employees").toString())
@@ -124,7 +167,7 @@ public class EmployeeDao {
     }
 
     public Employee getEmployeeByCol(Predicate<Employee> pred){
-        N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
+        N1qlQueryResult result = (N1qlQueryResult) bucket.query(N1qlQuery.simple("select * from Employees"));
         List<Employee> list = result.allRows().stream()
                 .map(e->JsonObject.fromJson(e.toString()).get("Employees").toString())
                 .map(e->Json.decodeValue(e, Employee.class))
@@ -140,7 +183,7 @@ public class EmployeeDao {
     }
 
     public List<String> getListOfColValues(Function<Employee, String> lambda){
-        N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
+        N1qlQueryResult result = (N1qlQueryResult) bucket.query(N1qlQuery.simple("select * from Employees"));
 
         return result.allRows().stream()
                 .map(e->JsonObject.fromJson(e.toString()).get("Employees").toString())
@@ -150,7 +193,7 @@ public class EmployeeDao {
     }
 
     public void removeEmployee(String id){
-       try {
+        try {
             bucket.remove(id);
         } catch(Exception e) {
             System.out.println("Remove Employee Failed. CAUSE: " + e.getMessage());
@@ -159,7 +202,7 @@ public class EmployeeDao {
 
     public void removeAllEmployees(){
         try {
-            N1qlQueryResult result = bucket.query(N1qlQuery.simple("select empId from Employees"));
+            N1qlQueryResult result = (N1qlQueryResult) bucket.query(N1qlQuery.simple("select empId from Employees"));
             result.allRows().stream()
                     .map(e -> JsonObject.fromJson(e.toString()).get("empId"))
                     .forEach(e -> bucket.remove(e.toString()));

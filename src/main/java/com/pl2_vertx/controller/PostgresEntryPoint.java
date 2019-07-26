@@ -6,20 +6,20 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
 
-public class EntryPoint extends AbstractVerticle {
-
-    
+public class PostgresEntryPoint extends AbstractVerticle {
     @Override
     public void start(Future<Void> fut) {
         // Create a router object.
         HttpServer hs = vertx.createHttpServer();
         Router router = Router.router(vertx);
-        EmployeeController ec = new EmployeeController();
+        PostgresEmployeeController ec = new PostgresEmployeeController();
         //Allows the usage of body in http requests.
         router.route().handler(BodyHandler.create());
 
@@ -85,8 +85,8 @@ public class EntryPoint extends AbstractVerticle {
                     .end("<h1>Hello from my first Vert.x 3 application</h1>");
         });
 
-        router.get("/api/employees").handler(EmployeeController::getAll);
-        router.get("/api/employees/:id").handler(EmployeeController::getOne);
+        router.get("/api/employees").handler(PostgresEmployeeController::getAll);
+        router.get("/api/employees/:id").handler(PostgresEmployeeController::getOne);
         router.get("/api/employees/read/names").handler(rcRead);
         router.get("/api/employees/read/emails").handler(rcRead);
         router.get("/api/employees/read/phones").handler(rcRead);
@@ -94,14 +94,14 @@ public class EntryPoint extends AbstractVerticle {
         router.get("/api/employees/search/email/:email").handler(rcSearch);
         router.get("/api/employees/search/empid/:empid").handler(rcSearch);
         router.get("/api/employees/search/phone/:phone").handler(rcSearch);
-        router.get("/api/employees/read/sorted").handler(EmployeeController::getSortedEmployees);
+        router.get("/api/employees/read/sorted").handler(PostgresEmployeeController::getSortedEmployees);
 
-        router.post("/api/employees").handler(EmployeeController::addOne);
+        router.post("/api/employees").handler(PostgresEmployeeController::addOne);
 
-        router.delete("/api/employees/:id").handler(EmployeeController::removeOne);
-        router.delete("/api/employees/delete/all").handler(EmployeeController::removeAll);
+        router.delete("/api/employees/:id").handler(PostgresEmployeeController::removeOne);
+        router.delete("/api/employees/delete/all").handler(PostgresEmployeeController::removeAll);
 
-        router.patch("/api/employees/:id").handler(EmployeeController::updateOne);
+        router.patch("/api/employees/:id").handler(PostgresEmployeeController::updateOne);
 
         hs.requestHandler(router)
                 .listen(8080);
