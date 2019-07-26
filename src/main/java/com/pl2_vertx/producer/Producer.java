@@ -46,6 +46,7 @@ public class Producer {
             String keyStorePath = new File(prop.getProperty("kafka.keystore.path")).getAbsolutePath();
             String trustStorePassword = prop.getProperty("kafka.truststore.password");
             String keyStorePassword = prop.getProperty("kafka.keystore.password");
+            String producerFlag = prop.getProperty("producer.flag");
 
             //Set up configs for Kafka.
             Map<String, String> config = new HashMap<>();
@@ -62,22 +63,27 @@ public class Producer {
             config.put("acks", "1");
 
             //Use producer for interacting with Apache Kafka
-            producer = KafkaProducer.create(Vertx.currentContext().owner() , config);
+            if(producerFlag.equals("1"))
+                producer = KafkaProducer.create(Vertx.currentContext().owner() , config);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
     public void sendLog(Log log){
-        KafkaProducerRecord<String, JsonObject> record =
-                KafkaProducerRecord.create("Database", log.getLogId(),
-                        JsonObject.mapFrom(log));
+        if(producer != null) {
+            KafkaProducerRecord<String, JsonObject> record =
+                    KafkaProducerRecord.create("Database", log.getLogId(),
+                            JsonObject.mapFrom(log));
 
-        producer.write(record, done -> {
-            if(done.succeeded())
-                System.out.println("Log Sent: " + log.getLogId());
-            else
-                System.out.println("Fail " + done.cause());
-        });
+            producer.write(record, done -> {
+                if (done.succeeded())
+                    System.out.println("Log Sent: " + log.getLogId());
+                else
+                    System.out.println("Fail " + done.cause());
+            });
+        } else {
+            System.out.println("Logging has been turned off.");
+        }
     }
 }
