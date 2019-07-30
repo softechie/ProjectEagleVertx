@@ -1,9 +1,15 @@
-# ProjectEagleVertx
 
-## ~ REQUIRED CONFIGURATIONS ~
+---
+#  ProjectEagleVertx Configurations
+---
+#
+#
+#
+#
+#
 
 ## Import into Intellij IDE
-
+---
 1. Clone this repo.
 
 2. Open project to Intellij
@@ -17,10 +23,12 @@
 3. Make sure all the maven dependencies are imported.
     - If Maven dependencies need to be imported then right click on pom.xml file and go to MAVEN > REIMPORT.
 
-4. You project should be set up to run now. You still need to add your own Couchbase server as you can see in the below section.     
+4. You project should be set up to run now. You still need to add your own Couchbase or Postgres server as you can see in the below section.     
 
+## Database Options
+---------------------
 
-## CouchBase Community Server
+##### CouchBase Community Server
 
 1. Download CouchBase Community Server
 
@@ -31,16 +39,27 @@
 3. Check the project DBConfig file.
     - Match the username, password to the Admin Console.
     - Create bucket with the name from DBConfig file.
+    - Create a primary index: (CREATE PRIMARY INDEX `employees_index` ON `Employees`)
     
-4. Add data to CouchBase.
+4. Add data to bucket.
 
+#
+#
+# --- OR ---
+#
+#
+
+##### Postgres
+
+1. Download your choice of Postgres local server.
+2. Create 'Employees' table with columns name and type:
+    - empid (character varying)
+    - employee (jsonb)
+3. Add data to table.
 
 ## Kafka 
-
-
-*** If you do not want to add Kafka yet you can disable it by commenting out any reference of the "Producer" object and its "sendLog" method calls. ***
-
-
+---
+*** If you dont want to run Kafka yet, it can be disabled by changing producer flag to 0 and to 1 to be enabled. ***
 
 You can run the Kafka server locally by downloading Kafka 2.3.0.
 https://kafka.apache.org/downloads
@@ -50,7 +69,11 @@ Local Kafka Server
 - Follow these instructions. Stop at step 3. 
 - https://kafka.apache.org/quickstart
 
-#OR
+#
+#
+# --- OR ---
+#
+#
 
 You can create a remote Kafka server through aiven. (Free Trial 30 days).
 https://console.aiven.io/index.html

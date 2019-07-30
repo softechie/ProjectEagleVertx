@@ -13,7 +13,7 @@ import io.vertx.ext.web.handler.BodyHandler;
 
 public class EntryPoint extends AbstractVerticle {
 
-    
+
     @Override
     public void start(Future<Void> fut) {
         // Create a router object.
