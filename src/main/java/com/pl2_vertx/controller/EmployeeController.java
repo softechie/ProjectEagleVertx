@@ -5,6 +5,7 @@ import com.pl2_vertx.dto.Log;
 import com.pl2_vertx.producer.Producer;
 import com.pl2_vertx.service.TestService;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import com.pl2_vertx.service.EmployeeService;
@@ -30,6 +31,27 @@ public class EmployeeController {
                 .end(Json.encodePrettily(emp));
 
         producer.sendLog(new Log("Employee Added."));
+    }
+
+    public static void addAll(RoutingContext routingContext) {
+
+        JsonArray jsonArrayObj = routingContext.getBodyAsJsonArray();
+
+        jsonArrayObj.forEach(eachObj -> {
+            System.out.println(eachObj);
+
+            Employee emp = new Employee();
+            emp.setName(((JsonObject) eachObj).getString("name"));
+            emp.setEmail(((JsonObject) eachObj).getString("email"));
+            emp.setPhone(((JsonObject) eachObj).getString("phone"));
+            emp.setDoj(((JsonObject) eachObj).getString("doj"));
+            empService.addEmployee(emp);
+        });
+
+        routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(jsonArrayObj));
+
+        producer.sendLog(new Log("Employees Added."));
     }
 
     public static void getOne(RoutingContext routingContext) {

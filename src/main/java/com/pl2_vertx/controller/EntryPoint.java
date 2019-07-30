@@ -97,6 +97,7 @@ public class EntryPoint extends AbstractVerticle {
         router.get("/api/employees/read/sorted").handler(EmployeeController::getSortedEmployees);
 
         router.post("/api/employees").handler(EmployeeController::addOne);
+        router.post("/api/employees/initializeData").handler(EmployeeController::addAll);
 
         router.delete("/api/employees/:id").handler(EmployeeController::removeOne);
         router.delete("/api/employees/delete/all").handler(EmployeeController::removeAll);
