@@ -46,6 +46,8 @@ public class AsyncCBEmployeeDao {
 
             cl = CouchbaseAsyncCluster.create(env, DbConfig.url);
             cl.authenticate(DbConfig.username, DbConfig.password);
+            
+            //IDIOM:Item-0451: inline unnecessary variables
             cl.openBucket(DbConfig.bucket).subscribe(b -> bucket = b);
 
         } catch(BucketDoesNotExistException e){

@@ -3,8 +3,9 @@ package com.pl2_vertx.dto;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Employee {
-
+	  public class Employee {
+	/*This can be made final as below:
+	 * public final class Employee {*/
     private static final AtomicInteger COUNTER = new AtomicInteger();
     private String empId;
     private String name;
@@ -26,6 +27,27 @@ public class Employee {
 
     }
 
+    //IDIOM:Item-0480: Add private constructor to utility classes
+/*    private Employee(String empId,String name, String status, String tenure, String phone, String email, String doj,
+            String wl, String hl, String cl, String rmid, String roleid, String vertid, String acctid) {
+super();
+
+this.empId = empId;
+this.name = name;
+this.status = status;
+this.tenure = tenure;
+this.phone = phone;
+this.email = email;
+this.doj = doj;
+this.wl = wl;
+this.hl = hl;
+this.cl = cl;
+this.rmid = rmid;
+this.roleid = roleid;
+this.vertid = vertid;
+this.acctid = acctid;
+}
+*/
 
     public Employee(String empId,String name, String status, String tenure, String phone, String email, String doj,
                     String wl, String hl, String cl, String rmid, String roleid, String vertid, String acctid) {

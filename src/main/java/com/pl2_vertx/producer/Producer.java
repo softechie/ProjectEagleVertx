@@ -16,13 +16,13 @@ import java.util.Properties;
 
 public class Producer {
     private KafkaProducer<String, JsonObject> producer;
-    //private String kafkaServer = "localhost:9092";
-    private String kafkaServer = "kafka-2ac2e185-antinywong-f578.aivencloud.com:14246";
+    private String kafkaServer = "localhost:9092";
+    //private String kafkaServer = "kafka-2ac2e185-antinywong-f578.aivencloud.com:14246";
 
     public Producer() {
 
         // Uncomment out this section and comment out next section if you are using LOCAL KAFKA SERVER WITHOUT SSL.
-        /*
+        
 
         Map<String, String> config = new HashMap<>();
         config.put("bootstrap.servers", kafkaServer);
@@ -32,11 +32,11 @@ public class Producer {
 
         //Use producer for interacting with Apache Kafka
         producer = KafkaProducer.create(Vertx.currentContext().owner(), config);
-
-        */
+    }
+        
 
         //Uncomment this section out and comment out above section if using AIVEN KAFKA SERVER.
-        try (InputStream input = new FileInputStream(new File("config.properties").getAbsolutePath())) {
+        /*try (InputStream input = new FileInputStream(new File("config.properties").getAbsolutePath())) {
             //Load props file content.
             Properties prop = new Properties();
             prop.load(input);
@@ -61,7 +61,6 @@ public class Producer {
             config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
             config.put("value.serializer", "io.vertx.kafka.client.serialization.JsonObjectSerializer");
             config.put("acks", "1");
-
             //Use producer for interacting with Apache Kafka
             if(producerFlag.equals("1"))
                 producer = KafkaProducer.create(Vertx.currentContext().owner() , config);
@@ -69,7 +68,7 @@ public class Producer {
             ex.printStackTrace();
         }
     }
-
+*/
     public void sendLog(Log log){
         if(producer != null) {
             KafkaProducerRecord<String, JsonObject> record =
@@ -87,3 +86,4 @@ public class Producer {
         }
     }
 }
+

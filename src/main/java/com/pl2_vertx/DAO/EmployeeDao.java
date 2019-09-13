@@ -22,7 +22,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class EmployeeDao {
-
+	
+	//IDIOM:Item-0008: Use descriptive identifiers
     private static EmployeeDao empDao;
     public Cluster cl;
     public Bucket bucket;
@@ -44,7 +45,8 @@ public class EmployeeDao {
 
         } catch(BucketDoesNotExistException e){
             System.out.println("Bucket doesn't exist .... creating new one");
-
+            
+            //creating a new bucket in couchbase
             ClusterManager clusterManager = cl.clusterManager();
             BucketSettings bucketSettings = new DefaultBucketSettings.Builder()
                     .type(BucketType.COUCHBASE)
@@ -60,7 +62,7 @@ public class EmployeeDao {
         }
 
     }
-
+    
     public static EmployeeDao getService(){
         if(empDao == null){
             empDao = new EmployeeDao();
@@ -112,7 +114,7 @@ public class EmployeeDao {
         return emps;
     }
 
-
+    //IDIOM: Item-0130: Use the correct data structure 
     public Map<String, Employee> getSortedEmployees(){
         N1qlQueryResult result = bucket.query(N1qlQuery.simple("select * from Employees"));
 

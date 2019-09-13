@@ -12,12 +12,15 @@ import com.pl2_vertx.service.EmployeeService;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+
+//IDIOM:Item-0000: Always optimize for the reader, not the writer
 public class EmployeeController {
 
     //private static TestService empService = new TestService();
     private static EmployeeService empService = new EmployeeService();
     private static Producer producer = new Producer();
-
+    
+    //add one employee data
     public static void addOne(RoutingContext routingContext) {
         JsonObject json = routingContext.getBodyAsJson();
         Employee emp = new Employee();
@@ -32,11 +35,11 @@ public class EmployeeController {
 
         producer.sendLog(new Log("Employee Added."));
     }
-
+   //add multiple employee data 
     public static void addAll(RoutingContext routingContext) {
 
         JsonArray jsonArrayObj = routingContext.getBodyAsJsonArray();
-
+        //IDIOM:Item-0450: Move local variable declarations to where they are used
         jsonArrayObj.forEach(eachObj -> {
             System.out.println(eachObj);
 
@@ -107,7 +110,7 @@ public class EmployeeController {
 
         producer.sendLog(new Log("All Employees Retrieved Sorted by Name."));
     }
-
+  //removes one employee data based on employee id
     public static void removeOne(RoutingContext routingContext) {
         String id = routingContext.request().getParam("id");
         if(id == null){
@@ -120,13 +123,13 @@ public class EmployeeController {
 
     }
 
-    // Delete all
+    // Deletes all the employee data
     public static void removeAll(RoutingContext routingContext) {
         empService.removeAllEmployees();
         routingContext.response().setStatusCode(200).end();
         producer.sendLog(new Log("Remove All Employees."));
     }
-
+    //update one employee data based on employee id
     public static void updateOne(RoutingContext routingContext) {
         String id = routingContext.request().getParam("id");
         if(id == null){

@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class EmployeeDaoTest {
+	//IDIOM:Item-0013: Prefer Collections over Arrays
     public static Map<String, Employee> emp = new LinkedHashMap<>();
 
     public Employee getEmployee(String id) {

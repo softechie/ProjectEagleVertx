@@ -22,7 +22,8 @@ public class PostgresEmployeeController {
         String email = json.getString("email");
         String phone = json.getString("phone");
         String tenure = json.getString("tenure");
-
+        
+        //IDIOM:Item-9002: Remove unnecessary parentheses
         if(name == null || email == null
                 || phone == null || tenure == null ) {
 
