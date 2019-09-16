@@ -97,12 +97,12 @@ public class PostgresEntryPoint extends AbstractVerticle {
         router.get("/api/employees/read/sorted").handler(PostgresEmployeeController::getSortedEmployees);
 
         router.post("/api/employees").handler(PostgresEmployeeController::addOne);
-
+        router.post("/api/employees/initializeData").handler(PostgresEmployeeController::addAll);
+        
         router.delete("/api/employees/:id").handler(PostgresEmployeeController::removeOne);
         router.delete("/api/employees/delete/all").handler(PostgresEmployeeController::removeAll);
 
         router.patch("/api/employees/:id").handler(PostgresEmployeeController::updateOne);
-
         hs.requestHandler(router)
                 .listen(8080);
     }

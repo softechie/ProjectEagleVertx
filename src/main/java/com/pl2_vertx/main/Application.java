@@ -14,7 +14,7 @@ public class Application
     public static void main( String[] args )
     {
 
-      //Launcher.executeCommand("run", PostgresEntryPoint.class.getName());
-      Launcher.executeCommand("run", EntryPoint.class.getName());
+      Launcher.executeCommand("run", PostgresEntryPoint.class.getName());
+     // Launcher.executeCommand("run", EntryPoint.class.getName());
     }
 }

@@ -5,6 +5,7 @@ import com.pl2_vertx.dto.Log;
 import com.pl2_vertx.producer.Producer;
 import com.pl2_vertx.service.PostgresEmployeeService;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import java.util.function.Function;
@@ -18,7 +19,17 @@ public class PostgresEmployeeController {
     public static void addOne(RoutingContext routingContext) {
         JsonObject json = routingContext.getBodyAsJson();
         Employee emp = new Employee();
-        String name = json.getString("name");
+        emp.setName(json.getString("name"));
+        emp.setEmail(json.getString("email"));
+        emp.setPhone(json.getString("phone"));
+        emp.setTenure(json.getString("tenure"));
+        empService.addEmployee(emp);
+        routingContext.response()
+        .putHeader("content-type", "application/json; charset=utf-8")
+        .end(Json.encodePrettily(emp));
+
+producer.sendLog(new Log("Employee Added."));
+       /* String name = json.getString("name");
         String email = json.getString("email");
         String phone = json.getString("phone");
         String tenure = json.getString("tenure");
@@ -41,8 +52,31 @@ public class PostgresEmployeeController {
 
                 producer.sendLog(new Log("Employee Added."));
             });
-        }
+        } */
     }
+    
+    //To add multiple records
+  	 public static void addAll(RoutingContext routingContext) {
+  		JsonArray jsonArrayObj = routingContext.getBodyAsJsonArray();
+
+       jsonArrayObj.forEach(eachObj -> {
+           System.out.println(eachObj);
+
+           Employee emp = new Employee();
+           emp.setName(((JsonObject) eachObj).getString("name"));
+           emp.setEmail(((JsonObject) eachObj).getString("email"));
+           emp.setPhone(((JsonObject) eachObj).getString("phone"));
+           emp.setDoj(((JsonObject) eachObj).getString("doj"));
+           empService.addEmployee(emp);
+       });
+
+       routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+               .end(Json.encodePrettily(jsonArrayObj));
+
+      // producer.sendLog(new Log("Employees Added.")); 
+   	             
+   	    	
+   	    } 
 
     public static void getOne(RoutingContext routingContext) {
         String id = routingContext.request().getParam("id");

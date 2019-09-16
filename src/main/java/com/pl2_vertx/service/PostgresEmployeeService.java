@@ -17,7 +17,7 @@ public class PostgresEmployeeService {
 
     private PostgresEmployeeDao employeeDao = PostgresEmployeeDao.getService();
 
-    public void addEmployee(Employee emp, Handler<AsyncResult<Employee>> handler){employeeDao.addEmployee(emp, handler);}
+   // public void addEmployee(Employee emp, Handler<AsyncResult<Employee>> handler){employeeDao.addEmployee(emp, handler);}
     public void getOneEmployee(String id, Handler<AsyncResult<Employee>> handler){employeeDao.getOneEmployee(id, handler);}
     public void getAllEmployees(Handler<AsyncResult<Map<String, Employee>>> handler){employeeDao.getAllEmployees(handler);}
     public void getEmployeeByCol(Predicate<Employee> pred, Handler<AsyncResult<List<Employee>>> handler){employeeDao.getEmployeeByCol(pred, handler);}
@@ -26,5 +26,6 @@ public class PostgresEmployeeService {
     public void removeEmployee(String id){employeeDao.removeEmployee(id);}
     public void removeAllEmployees() { employeeDao.removeAllEmployees(); }
     public void updateEmployee(Employee emp){employeeDao.updateEmployee(emp);}
+    public void addEmployee(Employee emp) {employeeDao.addEmployee(emp);}
 
 }

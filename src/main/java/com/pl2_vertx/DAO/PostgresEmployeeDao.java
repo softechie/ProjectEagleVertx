@@ -45,18 +45,20 @@ public class PostgresEmployeeDao {
         return empDao;
     }
 
-    public void addEmployee(Employee emp, Handler<AsyncResult<Employee>> handler){
+    public void addEmployee(Employee emp){
         JsonObject jsonEmp = JsonObject.mapFrom(emp);
         JsonArray args = new JsonArray().add(emp.getEmpId()).add(jsonEmp.toString());
-        String query = "INSERT INTO public.\"Employees\" (empid, employee) VALUES (?, ?)";
+       // String query = "INSERT INTO public.\"Employees\" (empid, employee) VALUES (?, ?)";
+        
+        String query = "INSERT INTO employees (empid, employee) VALUES (?, ?)";
 
         postgreSQLClient.queryWithParams(query, args, resultSetAsync -> {
-            if(resultSetAsync.succeeded()) {
+            /*if(resultSetAsync.succeeded()) {
                 handler.handle(Future.succeededFuture(emp));
             } else {
                 handler.handle(Future.failedFuture("Add Employee Failed."));
-                System.out.println("Add Employee Failed. CAUSE: " + resultSetAsync.cause());
-            }
+                System.out.println("Add Employee Failed. CAUSE: " + resultSetAsync.cause());}*/
+            
         });
     }
 
