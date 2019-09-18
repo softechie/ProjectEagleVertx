@@ -16,7 +16,7 @@ import java.util.Properties;
 
 public class Producer {
     private KafkaProducer<String, JsonObject> producer;
-    private String kafkaServer = "localhost:9092";
+    private String kafkaServer = "localhost:8000";
     //private String kafkaServer = "kafka-2ac2e185-antinywong-f578.aivencloud.com:14246";
 
     public Producer() {

@@ -11,24 +11,19 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
 
-
-//IDIOM:Item-0009: Don't reinvent the wheel
 public class EntryPoint extends AbstractVerticle {
 
-
+// called when verticle is deployed.
     @Override
     public void start(Future<Void> fut) {
-        
-    	//IDIOM:Item-0173	 Use singular name (not plural)
-    	HttpServer hs = vertx.createHttpServer();// Create a router object
+        // Create a router object.
+        HttpServer hs = vertx.createHttpServer();
         Router router = Router.router(vertx);
         EmployeeController ec = new EmployeeController();
         //Allows the usage of body in http requests.
         router.route().handler(BodyHandler.create());
 
         // Handler for search urls
-        
-       //IDIOM:Item-9003: Inline unnecessary conditionals
         Handler<RoutingContext> rcSearch = routingContext -> {
             String searchStr = routingContext.pathParams()
                     .values()
@@ -42,7 +37,6 @@ public class EntryPoint extends AbstractVerticle {
             } else {
                 switch (paramName) {
                     case "email":
-                    	//IDIOM:Item-9002: Remove unnecessary parentheses
                         ec.getEmployeeByCol(routingContext, x -> x.getEmail().equals(searchStr));
                         break;
                     case "empid":
@@ -76,7 +70,7 @@ public class EntryPoint extends AbstractVerticle {
                     ec.getListOfColValues(routingContext, x->x.getPhone());
                     break;
                 case "wls":
-                    ec.getListOfColValues(routingContext, x->x.getWl());
+                    ec.getListOfColValues(routingContext, x->x.getWl());//which is 
                     break;
                 default:
                     routingContext.response().setStatusCode(400).end();
@@ -90,9 +84,9 @@ public class EntryPoint extends AbstractVerticle {
                     .putHeader("content-type", "text/html")
                     .end("<h1>Hello from my first Vert.x 3 application</h1>");
         });
-      //used to fetch one employee data from the database
-       
-        //IDIOM:Item-0007: Sort things logically
+        
+       // String str="debug";
+//System.out.println("str");
         router.get("/api/employees").handler(EmployeeController::getAll);
         router.get("/api/employees/:id").handler(EmployeeController::getOne);
         router.get("/api/employees/read/names").handler(rcRead);
@@ -105,7 +99,7 @@ public class EntryPoint extends AbstractVerticle {
         router.get("/api/employees/read/sorted").handler(EmployeeController::getSortedEmployees);
 
         router.post("/api/employees").handler(EmployeeController::addOne);
-        router.post("/api/employees/initializeData").handler(EmployeeController::addAll);
+        router.post("/api/employees/initializeData").handler(EmployeeController::addAll);//add all employees in one
 
         router.delete("/api/employees/:id").handler(EmployeeController::removeOne);
         router.delete("/api/employees/delete/all").handler(EmployeeController::removeAll);
@@ -113,7 +107,7 @@ public class EntryPoint extends AbstractVerticle {
         router.patch("/api/employees/:id").handler(EmployeeController::updateOne);
 
         hs.requestHandler(router)
-                .listen(8080);
+                .listen(8001);
     }
 
 
